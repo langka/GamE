@@ -1,0 +1,2 @@
+{"id":0,"type":100,"data":{"success":true}}
+{"id":0,"type":11,"data":{"rooms":[{"name":"hello","key":"good"},{"name":"886","key":"ok"}]}}

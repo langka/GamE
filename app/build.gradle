@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+buildscript {
+
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+
+    }
+    dependencies {
+
+        classpath 'com.android.tools.build:gradle:3.0.1'
+
+        // scala from https://github.com/saturday06/gradle-android-scala-plugin
+        classpath 'com.github.xingda920813:gradle-android-scala-plugin:android-gradle-2.3.0'
+    }
+
+}
+
+apply plugin: 'com.android.application'
+apply plugin: "jp.leafytree.android-scala"
+android {
+    compileSdkVersion 26
+    defaultConfig {
+        applicationId "com.bupt.sworld"
+        minSdkVersion 21
+        targetSdkVersion 26
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+    }
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test:runner:1.0.1'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    compile group: 'com.typesafe.akka', name: 'akka-actor_2.10', version: '2.3.15'
+    compile group: 'com.typesafe.akka', name: 'akka-remote_2.10', version: '2.3.15'
+    compile 'org.scala-lang:scala-library:2.10.4'
+    compile 'com.android.support:multidex:1.0.3'
+    compile 'de.hdodenhof:circleimageview:2.1.0'
+    compile 'com.wang.avi:library:2.1.3'
+
+}
