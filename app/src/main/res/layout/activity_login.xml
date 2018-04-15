@@ -35,6 +35,7 @@
                 style="@style/edittext_style"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="xusong2"
                 android:layout_marginTop="80dp"
                 android:hint="请输入账户名"
                 android:imeOptions="actionNext"
@@ -56,6 +57,7 @@
 
                 <EditText
                     android:id="@+id/login_pwd"
+                    android:text="123"
                     style="@style/edittext_style"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

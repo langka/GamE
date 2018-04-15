@@ -57,10 +57,6 @@ class HelloActivity extends BaseActivity {
   }
 
   def initialiseTheWorld(): Unit = {
-    val meta = getPackageManager.getApplicationInfo(getPackageName, PackageManager.GET_META_DATA).metaData
-    MetaData.ip = meta.getString("serverIp")
-    MetaData.port = meta.getString("serverPort")
-    MetaData.systemName = meta.getString("systemName")
     handler = new Handler()
     Actors.init(handler)
   }

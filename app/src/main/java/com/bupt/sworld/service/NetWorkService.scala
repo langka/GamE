@@ -1,13 +1,15 @@
 package com.bupt.sworld.service
+
 import akka.util.Timeout
-import com.bupt.sworld.actor.RoomManageActor.{CreateCallBack, EnterRoomCallBack, RoomsCallBack}
+import com.bupt.sworld.actor.RoomManageActor._
 import com.bupt.sworld.actor.UserManageActor
 import com.bupt.sworld.actor.common.Actors
 import sse.xs.msg.CommonFailure
-import sse.xs.msg.room.{CreateSuccess, EnterRoomSuccess, RoomSearchResponse}
+import sse.xs.msg.room._
 import sse.xs.msg.user.{LoginFailure, LoginRequest, LoginSuccess}
 
 import scala.concurrent.duration._
+
 /**
   * Created by xusong on 2018/3/14.
   * About:Only this object can touch the actors directly,
@@ -15,6 +17,10 @@ import scala.concurrent.duration._
   */
 
 object NetWorkService {
+  def startGame(infoToUnit: (RoomInfo) => Unit, failureToUnit: (CommonFailure) => Unit) = {
+    Actors.localRoomRef ! StartCallBack(infoToUnit, failureToUnit)
+  }
+
   implicit val timeout = Timeout(10 seconds)
 
 
@@ -38,6 +44,34 @@ object NetWorkService {
 
   def enterRoom(id: Long, onS: EnterRoomSuccess => Unit, onF: CommonFailure => Unit): Unit = {
     Actors.localRoomRef ! EnterRoomCallBack(id, onS, onF)
+  }
+
+  def swap(id: Long, onS: RoomInfo => Unit, onF: CommonFailure => Unit): Unit = {
+    Actors.localRoomRef ! SwapRoomCallBack(id, onS, onF)
+  }
+
+  def kick(id: Long, onS: RoomInfo => Unit, onF: CommonFailure => Unit): Unit = {
+    Actors.localRoomRef ! KickCallBack(id, onS, onF)
+  }
+
+  def leave(): Unit = {
+    Actors.localRoomRef ! LeaveRoom(LocalService.currentUser)
+  }
+
+  def sendRoomMessage(t: TalkMessage): Unit = {
+    Actors.localRoomRef ! t
+  }
+
+  def sendPublicMessage(t:TalkMessage):Unit = {
+    Actors.localUserRef ! t
+  }
+
+  def sendInviteToRoom(i: InviteMessage): Unit = {
+    Actors.localRoomRef ! i
+  }
+
+  def movePiece(i: Move, onS: String => Unit, onF: CommonFailure => Unit): Unit = {
+    Actors.localRoomRef ! MoveCallBack(i, onS, onF)
   }
 
 }

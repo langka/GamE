@@ -10,4 +10,5 @@ import sse.xs.msg.user.User
 object LocalService {
   var currentUser:User = _
   var currentRoom:RoomInfo = _
+  var currentRid:Long = _
 }

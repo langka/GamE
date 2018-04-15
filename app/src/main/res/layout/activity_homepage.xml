@@ -46,19 +46,28 @@
                 android:textColor="@color/blue_c" />
 
             <TextView
-                android:layout_marginLeft="20dp"
                 android:id="@+id/homepage_create"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
                 android:text="创建房间"
                 android:textColor="@color/GREEN1" />
+
             <TextView
                 android:id="@+id/homepage_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:text="刷新"
-                android:textColor="@color/GREEN1"
+                android:textColor="@color/GREEN1" />
+
+            <TextView
+                android:id="@+id/homepage_create_test"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:text="create_test"
+                android:textColor="@color/GREEN1" />
         </LinearLayout>
 
     </LinearLayout>
@@ -68,40 +77,43 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/userinfo_container"
         android:orientation="horizontal">
+
         <RelativeLayout
-            android:layout_weight="2"
             android:layout_width="0dp"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_weight="2">
+
             <ListView
                 android:id="@+id/home_rooms"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
+
             <TextView
                 android:id="@+id/home_room_hint"
-                android:gravity="center"
-                android:textColor="@color/Y1"
-                android:textStyle="bold"
-                android:textSize="30sp"
-                android:text="空无一人，自己去创建吧"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="空无一人，自己去创建吧"
+                android:textColor="@color/Y1"
+                android:textSize="30sp"
+                android:textStyle="bold" />
         </RelativeLayout>
 
 
         <RelativeLayout
-            android:background="@color/background_gray2"
-            android:paddingBottom="5dp"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:background="@color/background_gray2"
+            android:paddingBottom="5dp">
 
             <TextView
-                android:layout_marginRight="10dp"
                 android:id="@+id/home_send"
                 android:layout_width="wrap_content"
                 android:layout_height="20dp"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
                 android:text="发送"
                 android:textColor="@color/GREEN1"
                 android:textSize="16sp" />
@@ -114,17 +126,19 @@
                 android:layout_alignParentBottom="true"
                 android:layout_toLeftOf="@+id/home_send"
                 android:textSize="16sp" />
+
             <View
-                android:layout_below="@id/home_msg"
-                android:background="@color/Y1"
                 android:layout_width="match_parent"
-                android:layout_height="2dp"/>
+                android:layout_height="2dp"
+                android:layout_below="@id/home_msg"
+                android:background="@color/Y1" />
+
             <ListView
-                android:background="@drawable/btn_login_me"
                 android:id="@+id/sended_message"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@+id/home_send" />
+                android:layout_above="@+id/home_send"
+                android:background="@drawable/btn_login_me" />
         </RelativeLayout>
     </LinearLayout>
 

@@ -4,15 +4,20 @@ import android.content.{Context, Intent}
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.View.OnClickListener
 import android.view.{TextureView, View}
 import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget._
 import com.bupt.sworld.R
 import com.bupt.sworld.adapter.{HomeMsgAdapter, JavaOnItemClickListener, RoomAdapter}
-import com.bupt.sworld.service.{LocalService, NetWorkService}
-import sse.xs.msg.room.RoomInfo
+import com.bupt.sworld.service._
+import sse.xs.msg.room.{InviteMessage, RoomInfo, TalkMessage}
 import sse.xs.msg.user.User
 import com.bupt.sworld.convert.Implicit._
+import com.bupt.sworld.service.MessageService.ConfirmMsg
+
+import scala.collection.mutable.ArrayBuffer
 
 
 /**
@@ -28,9 +33,9 @@ class HomePageActivity extends BaseActivity {
   var msgEditText: EditText = _
   var checkBox: CheckBox = _
   var createView: View = _
+  var createNoEnter: View = _
   var refreshView: View = _
   var roomHint: View = _
-
 
   var roomAdapter: RoomAdapter = _
   var msgAdapter: HomeMsgAdapter = _
@@ -54,10 +59,17 @@ class HomePageActivity extends BaseActivity {
     checkBox = findViewById(R.id.home_check)
     createView = findViewById(R.id.homepage_create)
     refreshView = findViewById(R.id.homepage_refresh)
+    createNoEnter = findViewById(R.id.homepage_create_test)
     roomHint = findViewById(R.id.home_room_hint)
     lastUpdatedRooms = Array()
     roomAdapter = new RoomAdapter(this, lastUpdatedRooms)
-    msgAdapter = new HomeMsgAdapter(this, Array())
+    msgAdapter = new HomeMsgAdapter(this, ArrayBuffer())
+
+    nameTextView.setOnClickListener((v: View) => {
+      AccountActivity.Start(HomePageActivity.this)
+    })
+
+
     checkBox.setOnCheckedChangeListener(new OnCheckedChangeListener {
       override def onCheckedChanged(compoundButton: CompoundButton, b: Boolean): Unit = {
         updateRoomListView()
@@ -71,6 +83,7 @@ class HomePageActivity extends BaseActivity {
         NetWorkService.enterRoom(current._1, resp => {
           hideLoading()
           LocalService.currentRoom = resp.roomInfo
+          LocalService.currentRid = resp.id
           RoomActivity.start(HomePageActivity.this)
         }, failure => {
           hideLoading()
@@ -83,13 +96,61 @@ class HomePageActivity extends BaseActivity {
     })
     createView.setOnClickListener((v: View) => {
       NetWorkService.createRoom(success => {
+        val r = RoomInfo(Array(Some(LocalService.currentUser), None), LocalService.currentUser)
+        LocalService.currentRoom = r
         showText("create room:" + success.token)
+
+        RoomActivity.start(HomePageActivity.this)
       }, failure => {
         showText(failure.reason)
       })
     })
+    createNoEnter.setOnClickListener(new OnClickListener {
+      override def onClick(view: View): Unit = {
+        NetWorkService.createRoom(success => {
+          showText("create room:" + success.token)
+        }, failure => {
+          showText(failure.reason)
+        })
+      }
+    })
+    sendTextView.setOnClickListener((v: View) => {
+      val str = msgEditText.getText.toString.trim
+      if (str == "") {
+        showText("无法发送空消息")
+      } else {
+        val msg = TalkMessage(LocalService.currentUser.name, str, IdService.nextId())
+        NetWorkService.sendPublicMessage(msg)
+        msgAdapter.messages.append(msg)
+        msgEditText.setText("")
+        msgAdapter.notifyDataSetChanged()
+      }
+    })
     roomList.setAdapter(roomAdapter)
     msgList.setAdapter(msgAdapter)
+
+
+    //消息监听器初始化
+    MessageService.setPublicMessageListner(new MessageListener {
+      override def onMessageArrive(anyRef: AnyRef): Unit = {
+        Log.d("HomePageLogger", "received:" + anyRef.toString)
+        anyRef match {
+          case c: ConfirmMsg => //确认消息，存到辅助
+            msgAdapter.helpers.append(c)
+            msgAdapter.notifyDataSetChanged()
+
+          case t: TalkMessage =>
+
+            msgAdapter.messages.append(t)
+            msgAdapter.notifyDataSetChanged()
+
+          case i: InviteMessage =>
+            msgAdapter.messages.append(i)
+            msgAdapter.notifyDataSetChanged()
+        }
+      }
+    })
+
     updateUserInfoView()
   }
 
@@ -125,6 +186,7 @@ class HomePageActivity extends BaseActivity {
   def findAllRooms(): Unit = {
     showLoading()
     NetWorkService.findAllRooms(resp => {
+      hideLoading()
       lastUpdatedRooms = resp.rooms
       updateRoomListView()
     }, failure => {

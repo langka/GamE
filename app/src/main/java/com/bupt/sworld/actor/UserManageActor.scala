@@ -6,11 +6,15 @@ import com.bupt.sworld.activity.MetaData._
 import akka.pattern._
 import akka.pattern.{ask, pipe}
 import android.util.Log
+import com.bupt.sworld.activity.MetaData
 import com.bupt.sworld.actor.common.Actors.post
-import com.bupt.sworld.service.LocalService
+import com.bupt.sworld.service.MessageService.ConfirmMsg
+import com.bupt.sworld.service.{LocalService, MessageService}
 import sse.xs.msg.CommonFailure
-import sse.xs.msg.room.RoomSearchResponse
+import sse.xs.msg.room.{InviteMessage, RoomSearchResponse, TalkMessage}
 import sse.xs.msg.user._
+
+import scala.collection.mutable
 
 /**
   * Created by xusong on 2018/3/15.
@@ -26,15 +30,17 @@ class UserManageActor extends Actor {
 
   private var user: User = _
 
-  private val selection = system.actorSelection("akka.tcp://nice@10.209.8.196:2552/user/usermanager")
+  private val basePath = "akka.tcp://" + MetaData.systemName + "@" + MetaData.ip + ":" + MetaData.port + "/user"
+  private val selection = system.actorSelection(basePath + "/usermanager")
 
 
   var remoteRef: ActorRef = _
-  var scheduler:Cancellable = _
+  var scheduler: Cancellable = _
+
   //在actor启动的时候尝试解析
   override def preStart(): Unit = {
     selection ! "HELLO"
-    scheduler=context.system.scheduler.schedule(0 seconds,3 seconds,self,InitTimeout)
+    scheduler = context.system.scheduler.schedule(0 seconds, 3 seconds, self, InitTimeout)
   }
 
   override def receive: Receive = {
@@ -50,14 +56,53 @@ class UserManageActor extends Actor {
       selection ! "HELLO"
 
     case LoginCallBack(r, s, f) => //
-       val failure = LoginFailure("正在连接至用户服务器，请稍后！")
-       post {
-         f(failure)
-       }
+      val failure = LoginFailure("正在连接至用户服务器，请稍后！")
+      post {
+        f(failure)
+      }
   }
 
+  val idSet = new mutable.TreeSet[Long]()
+
   def loggedIn: Receive = {
-    case _ =>
+    //发送到大厅的聊天/邀请消息,这个消息将会被所有人收到，
+    //此消息不需要保证一定送达
+    case t: TalkMessage =>
+      //这是自己发的
+      if (t.speaker == LocalService.currentUser.name) {
+        if (!idSet.contains(t.id)) {
+          //这是一次发送
+          idSet.add(t.id)
+          remoteRef ! t
+        } else {
+          //这是一次自己的确认回复
+          post{
+            MessageService.onPublicMessageArrive(ConfirmMsg(t.id))
+          }
+
+        }
+        //来自其他用户的消息
+      } else {
+        post{
+          MessageService.onPublicMessageArrive(t)
+        }
+      }
+
+    case i: InviteMessage =>
+      if (i.user.name == LocalService.currentUser.name){//自己的消息
+      if(!idSet.contains(i.mid)){//发送
+        idSet.add(i.mid)
+        remoteRef ! i
+      }else{//do nothing
+        //invite消息不需要确认
+      }
+      }else {
+        post{
+          MessageService.onPublicMessageArrive(i)
+
+        }
+      }
+
   }
 
   def waitFoLoginResp(onS: (LoginSuccess) => Unit, onF: (LoginFailure) => Unit): Receive = {
@@ -130,7 +175,6 @@ object UserManageActor {
   case object LoginTimeout
 
   case object RegisterTimeout
-
 
 
 }

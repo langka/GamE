@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="wrap_content">
+
     <RelativeLayout
-        android:padding="15dp"
-        android:background="@drawable/white_radius12_comtainer"
-        android:layout_gravity="center_horizontal"
         android:id="@+id/header_info_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp">
+        android:layout_marginRight="16dp"
+        android:background="@drawable/white_radius12_comtainer"
+        android:padding="15dp">
 
         <RelativeLayout
             android:id="@+id/header_portrait_container"
@@ -22,7 +23,7 @@
                 android:id="@+id/head_portrait"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
-                android:src="@drawable/ic_mood_black_24dp"
+                android:src="@drawable/a"
                 app:civ_border_color="@color/W1"
                 app:civ_border_width="1dp" />
         </RelativeLayout>
@@ -94,16 +95,20 @@
         </LinearLayout>
 
     </RelativeLayout>
+
     <TextView
-        android:visibility="invisible"
         android:id="@+id/no_enemy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
         android:background="@drawable/white_radius12_comtainer"
-        android:padding="10dp"
-        android:textSize="30sp"
-        android:textColor="@color/R1"
         android:gravity="center"
         android:text="暂无对手"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textColor="@color/R1"
+        android:textSize="30sp"
+        android:visibility="invisible" />
 </RelativeLayout>

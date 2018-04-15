@@ -12,7 +12,9 @@ import scala.concurrent.duration._
   * Created by xusong on 2018/3/14.
   * About:
   */
+
 import scala.concurrent.ExecutionContext.Implicits.global
+
 object Actors {
   /*
    *  remote ref
@@ -31,21 +33,21 @@ object Actors {
    */
   var localUserRef: ActorRef = _
 
-  var localRoomRef:ActorRef = _
+  var localRoomRef: ActorRef = _
 
-  val basePath = "akka.tcp://nice@10.209.8.196:2552/user"
+  val basePath = "akka.tcp://" + MetaData.systemName + "@" + MetaData.ip + ":" + MetaData.port + "/user"
 
   def init(handler: Handler): Unit = {
     Actors.handler = handler
     val system = ActorSystem()
 
     //local
-    localUserRef=system.actorOf(Props[UserManageActor],"um")
-    localRoomRef = system.actorOf(Props[RoomManageActor],"roomm")
-    val head:String = "akka.tcp://"
-    val base = head + MetaData.systemName+"@"+MetaData.ip+":"+MetaData.port+"/user/"
+    localUserRef = system.actorOf(Props[UserManageActor], "um")
+    localRoomRef = system.actorOf(Props[RoomManageActor], "roomm")
+    val head: String = "akka.tcp://"
+    val base = head + MetaData.systemName + "@" + MetaData.ip + ":" + MetaData.port + "/user/"
     //remote
-    connSelection= system.actorSelection(base+"/conn")
+    connSelection = system.actorSelection(base + "/conn")
 
   }
 
@@ -57,7 +59,7 @@ object Actors {
         post(onSucess)
     }
     f onFailure {
-      case e=>
+      case e =>
         post(onFailure)
     }
   }
