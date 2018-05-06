@@ -7,10 +7,13 @@ import com.bupt.sworld.actor.RoomManageActor.{KickTimeout, _}
 import com.bupt.sworld.actor.UserManageActor.{InitTimeout, LoginCallBack}
 import com.bupt.sworld.actor.common.Actors
 import com.bupt.sworld.actor.common.Actors.post
+import com.bupt.sworld.service.MessageService.ConfirmMsg
 import com.bupt.sworld.service.{LocalService, MessageService}
 import sse.xs.msg.CommonFailure
 import sse.xs.msg.room._
 import sse.xs.msg.user.LoginFailure
+
+import scala.collection.mutable
 
 /**
   * Created by xusong on 2018/3/24.
@@ -112,7 +115,7 @@ class RoomManageActor extends Actor {
 
   def waitForCreateResp(s: (CreateSuccess) => Unit, f: (CommonFailure) => Unit): Receive = {
     case c: CreateSuccess =>
-      Log.d("CCC","CRR")
+      Log.d("CCC", "CRR")
       post {
         s(c)
       }
@@ -128,57 +131,94 @@ class RoomManageActor extends Actor {
   }
 
   def inRoom(id: Long): Receive =
-    roomMessageDispatcher orElse
-    {
-    case SwapRoomCallBack(i, s, f) =>
-      roomSelection(id) ! SwapRoom
-      context.system.scheduler.scheduleOnce(10 seconds, self, SwapTimeout)
-      context.become(waitForSwap(id, s, f))
-    case KickCallBack(i, s, f) =>
-      roomSelection(id) ! Kick
-      context.system.scheduler.scheduleOnce(10 seconds, self, KickTimeout)
-      context.become(waitForKick(id, s, f))
+    roomMessageDispatcher(id) orElse {
+      case SwapRoomCallBack(i, s, f) =>
+        roomSelection(id) ! SwapRoom
+        context.system.scheduler.scheduleOnce(10 seconds, self, SwapTimeout)
+        context.become(waitForSwap(id, s, f))
+      case KickCallBack(i, s, f) =>
+        roomSelection(id) ! Kick
+        context.system.scheduler.scheduleOnce(10 seconds, self, KickTimeout)
+        context.become(waitForKick(id, s, f))
 
-    case l: LeaveRoom =>
-      roomSelection(id) ! LeaveRoom(LocalService.currentUser)
-      become(ready)
+      case l: LeaveRoom =>
+        roomSelection(id) ! LeaveRoom(LocalService.currentUser)
+        become(ready)
 
-    case StartCallBack(r, f) =>
-      roomSelection(id) ! StartGame
-      context.system.scheduler.scheduleOnce(10 seconds, self, StartTimeout)
-      become(waitForStart(id, r, f))
-  }
+      case StartCallBack(r, f) =>
+        roomSelection(id) ! StartGame
+        context.system.scheduler.scheduleOnce(10 seconds, self, StartTimeout)
+        become(waitForStart(id, r, f))
+    }
 
   //负责处理被动收到收到的消息
-  def gameMessageDispatcher: Receive = {
+  val talkMsgs = new mutable.TreeSet[Long]
+
+  def gameMessageDispatcher(id: Long): Receive = {
+    //投降
+    case Surrender =>
+      roomSelection(id) ! Surrender
+      become(inRoom(id))
+    //游戏结束由客户端自行判断，不需要等待服务器端发送消息
+    case e:EndGame =>
+      roomSelection(id) ! e
+      become(inRoom(id))
     case e: OtherMove =>
       post {
         MessageService.onGameMessageArrive(e)
       }
     case t: TalkMessage =>
-      post {
-        MessageService.onGameMessageArrive(t)
+      //自己发的信息
+      if (t.speaker == LocalService.currentUser.name) {
+        if (talkMsgs.contains(t.id)) {
+          //确认消息
+          post {
+            MessageService.onGameMessageArrive(ConfirmMsg(t.id))
+          }
+        }
+        else {
+          roomSelection(id) ! t
+          talkMsgs.add(t.id)
+        }
       }
+
+      else {
+        post {
+          MessageService.onGameMessageArrive(t)
+        }
+      }
+
   }
 
-  def roomMessageDispatcher:Receive = {
+  def roomMessageDispatcher(id: Long): Receive = {
+
+    case g: GameStarted =>
+      post {
+        MessageService.onRoomMessageArrive(g)
+      }
+      become(gameStarted(id))
     case t: TalkMessage =>
       post {
         MessageService.onRoomMessageArrive(t)
       }
 
-    case n:NewUserEnter =>
-      post{
+    case n: NewUserEnter =>
+      post {
         MessageService.onRoomMessageArrive(n)
       }
 
-    case o:OtherLeaveRoom =>
-      post{
+    case o: OtherLeaveRoom =>
+      post {
         MessageService.onRoomMessageArrive(o)
+      }
+
+    case s:SwapSuccess =>
+      post{
+        MessageService.onRoomMessageArrive(s)
       }
   }
 
-  def gameStarted(id: Long): Receive = gameMessageDispatcher orElse {
+  def gameStarted(id: Long): Receive = gameMessageDispatcher(id) orElse {
 
     case e: MoveCallBack =>
       roomSelection(id) ! e.m
@@ -186,89 +226,93 @@ class RoomManageActor extends Actor {
       become(waitForMoveResp(id, e.onSucc, e.onFailure))
 
     //普通聊天信息不用保证其重要性
-    case t: TalkMessage =>
-      roomSelection(id) ! t
+    case t: MyTalkMessage =>
+      roomSelection(id) ! t.msg
   }
 
 
   def waitForMoveResp(id: Long, ons: String => Unit, onf: CommonFailure => Unit): Receive =
-    gameMessageDispatcher orElse {
+    gameMessageDispatcher(id) orElse {
       case MoveSuccess =>
         val msg = "移动成功!"
         post {
           ons(msg)
         }
+        become(gameStarted(id))
       case MoveTimeout =>
         val failure = CommonFailure("移动超时")
         post {
           onf(failure)
         }
+        become(gameStarted(id))
       case failure: CommonFailure =>
         post {
           onf(failure)
         }
+        become(gameStarted(id))
+
     }
 
 
   def waitForStart(id: Long, onS: RoomInfo => Unit, onF: CommonFailure => Unit): Receive =
-  roomMessageDispatcher orElse {
-    case StartTimeout =>
-      val failure = CommonFailure("连接超时")
-      post {
-        onF(failure)
-      }
-      become(inRoom(id))
-    case GameStarted(r) =>
-      post {
-        onS(r)
-      }
-      become(gameStarted(id))
-    case c: CommonFailure =>
-      post {
-        onF(c)
-      }
-      become(inRoom(id))
-  }
+    roomMessageDispatcher(id) orElse {
+      case StartTimeout =>
+        val failure = CommonFailure("连接超时")
+        post {
+          onF(failure)
+        }
+        become(inRoom(id))
+      case GameStarted(r) =>
+        post {
+          onS(r)
+        }
+        become(gameStarted(id))
+      case c: CommonFailure =>
+        post {
+          onF(c)
+        }
+        become(inRoom(id))
+    }
 
   def waitForSwap(id: Long, s: RoomInfo => Unit, f: CommonFailure => Unit): Receive =
-  roomMessageDispatcher orElse {
-    case SwapTimeout =>
-      val failure = CommonFailure("连接超时")
-      post {
-        f(failure)
-      }
-      become(inRoom(id))
-    case SwapSuccess(r) =>
-      post {
-        s(r)
-      }
-      become(inRoom(id))
-    case c: CommonFailure =>
-      post {
-        f(c)
-      }
-      become(inRoom(id))
-  }
+    roomMessageDispatcher(id) orElse {
+      case SwapTimeout =>
+        val failure = CommonFailure("连接超时")
+        post {
+          f(failure)
+        }
+        become(inRoom(id))
+      case SwapSuccess(r) =>
+        post {
+          s(r)
+        }
+        become(inRoom(id))
+      case c: CommonFailure =>
+        post {
+          f(c)
+        }
+        become(inRoom(id))
+    }
 
   def waitForKick(id: Long, s: RoomInfo => Unit, f: CommonFailure => Unit): Receive =
-  roomMessageDispatcher orElse {
-    case KickTimeout =>
-      val failure = CommonFailure("连接超时")
-      post {
-        f(failure)
-      }
-      become(inRoom(id))
-    case KickSuccess(r) =>
-      post {
-        s(r)
-      }
-      become(inRoom(id))
-    case c: CommonFailure =>
-      post {
-        f(c)
-      }
-      become(inRoom(id))
-  }
+    roomMessageDispatcher(id) orElse {
+      case KickTimeout =>
+        val failure = CommonFailure("连接超时")
+        post {
+          f(failure)
+        }
+        become(inRoom(id))
+      case KickSuccess(r) =>
+        post {
+          s(r)
+        }
+        become(inRoom(id))
+      case c: CommonFailure =>
+        post {
+          f(c)
+        }
+        become(inRoom(id))
+    }
 
   private def roomSelection(id: Long) = {
     val r = "/room" + id
@@ -308,6 +352,9 @@ object RoomManageActor {
   case class MoveCallBack(m: Move, onSucc: String => Unit, onFailure: CommonFailure => Unit)
 
   case object MoveTimeout
+
+
+  case class MyTalkMessage(msg: TalkMessage)
 
 }
 

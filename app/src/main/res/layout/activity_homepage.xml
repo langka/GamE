@@ -7,66 +7,57 @@
     android:clipChildren="false">
 
 
+    <include
+        android:id="@+id/myinfo"
+        layout="@layout/myinfo_portrait"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <LinearLayout
         android:id="@+id/userinfo_container"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="vertical"
-        android:paddingBottom="10dp">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/myinfo"
+        android:background="@drawable/shape_hwinfo_level"
+        android:orientation="vertical">
 
         <LinearLayout
+            android:layout_gravity="center_vertical"
             android:layout_width="match_parent"
-            android:layout_height="100dp">
-
-            <TextView
-                android:id="@+id/home_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/W1"
-                android:text="name"
-                android:textColor="@color/B1" />
-
-            <TextView
-                android:id="@+id/homepage_desc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="i dont know"
-                android:textColor="@color/B1" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp">
 
             <CheckBox
                 android:id="@+id/home_check"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:shadowColor="@color/GREEN1"
                 android:text="空闲"
                 android:textColor="@color/blue_c" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/homepage_create"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:text="创建房间"
-                android:textColor="@color/GREEN1" />
+                android:src="@drawable/ic_append" />
 
-            <TextView
+            <ImageView
                 android:id="@+id/homepage_refresh"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:text="刷新"
-                android:textColor="@color/GREEN1" />
+                android:src="@drawable/ic_refresh" />
 
             <TextView
                 android:id="@+id/homepage_create_test"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
-                android:text="create_test"
+                android:text="测试按钮"
                 android:textColor="@color/GREEN1" />
         </LinearLayout>
 
@@ -86,14 +77,16 @@
             <ListView
                 android:id="@+id/home_rooms"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:background="@drawable/bg2" />
 
             <TextView
                 android:id="@+id/home_room_hint"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@drawable/bg"
                 android:gravity="center"
-                android:text="空无一人，自己去创建吧"
+                android:text="空空如也，自己去创建房间吧"
                 android:textColor="@color/Y1"
                 android:textSize="30sp"
                 android:textStyle="bold" />
@@ -101,6 +94,8 @@
 
 
         <RelativeLayout
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

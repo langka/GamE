@@ -3,6 +3,7 @@ package com.bupt.sworld.activity
 import android.content.{Context, Intent}
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.{EditText, ListView, TextView}
@@ -52,9 +53,23 @@ class RoomActivity extends BaseActivity {
     sendView = findViewById(R.id.send)
     msgList = findViewById(R.id.room_talk)
     inviteView = findViewById(R.id.invite)
+
+    sendView.setOnClickListener(new OnClickListener {
+      override def onClick(view: View): Unit = {
+        val str = msgEdit.getText.toString.trim
+        if(str==null){
+          showText("消息内容不可以为空!")
+        }else{
+          val t = TalkMessage(LocalService.currentUser.name,str,IdService.nextId())
+          msgEdit.setText("")
+          NetWorkService.sendRoomMessage(t)
+        }
+      }
+    })
+
     inviteView.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
-        val i = InviteMessage(LocalService.currentUser, LocalService.currentRid,IdService.nextId())
+        val i = InviteMessage(LocalService.currentUser, LocalService.currentRid, IdService.nextId())
         NetWorkService.sendInviteToRoom(i)
         roomMsgAdapter.add(i)
       }
@@ -74,14 +89,10 @@ class RoomActivity extends BaseActivity {
       NetWorkService.leave()
       finish()
     })
-    kick.setOnClickListener((v: View) => {
-      NetWorkService.kick(LocalService.currentRid, r => {
-        LocalService.currentRoom = r
-        updateRoomInfoView()
-      }, f => {
-        showText(f.reason)
-        updateRoomInfoView()
-      })
+    kick.setOnClickListener(new OnClickListener {
+      override def onClick(view: View): Unit = {
+        showText("以和为贵，为什么要踢人呢?")
+      }
     })
     start.setOnClickListener((v: View) => {
       if (LocalService.currentRoom.players.forall(_.isDefined)) {
@@ -120,6 +131,11 @@ class RoomActivity extends BaseActivity {
             LocalService.currentRoom = o.roomInfo
             updateRoomInfoView()
           // TODO: 添加交换，kick，leave等消息
+
+          case s: SwapSuccess =>
+            roomMsgAdapter.add(s)
+            LocalService.currentRoom = s.r
+            updateRoomInfoView()
         }
 
         roomMsgAdapter.notifyDataSetChanged()
@@ -154,13 +170,17 @@ class RoomActivity extends BaseActivity {
         levelTextView.setText("level: " + levelOf(user))
         win.setText(user.win + "")
         lost.setText(user.lose + "")
-        win.setText("" + 100)
-        lost.setText("" + 101)
     }
   }
 
   private def levelOf(p: User) = {
     (p.win * 7 + p.lose * 3) / 10
+  }
+
+  override def onBackPressed(): Unit = {
+    super.onBackPressed()
+    Log.d("RoomActivityLogger", "back pressed!,quit room")
+    NetWorkService.leave()
   }
 }
 

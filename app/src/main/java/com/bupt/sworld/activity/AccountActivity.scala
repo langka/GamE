@@ -36,10 +36,11 @@ class AccountActivity extends BaseActivity {
     mail = findViewById(R.id.frag_email)
     registerTime = findViewById(R.id.frag_registration_time)
     initRowView(name, R.drawable.ic_exposure_plus_1_black_30dp, "昵称", LocalService.currentUser.name)
-    initRowView(desc, R.drawable.ic_wb_incandescent_black_30dp, "个性签名", LocalService.currentUser.description)
+    initRowView(desc, R.drawable.ic_wb_incandescent_black_30dp, "个性签名", if (LocalService.currentUser.description.trim == "no descrption")
+      "暂无描述" else LocalService.currentUser.description)
     initRowView(sex, R.drawable.ic_face_black_30dp, "年龄", LocalService.currentUser.age + "")
-    initRowView(id, R.drawable.ic_perm_identity_black_30dp, "账号",  LocalService.currentUser.id+"")
-    initRowView(mail,R.drawable.ic_email_black_30dp,"密码","********")
+    initRowView(id, R.drawable.ic_perm_identity_black_30dp, "账号", LocalService.currentUser.id + "")
+    initRowView(mail, R.drawable.ic_email_black_30dp, "密码", "********")
     initRowView(registerTime, R.drawable.ic_access_time_black_30dp, "胜利统计", LocalService.currentUser.win + "")
   }
 

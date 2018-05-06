@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="@drawable/dr_bg"
+    android:layout_margin="10dp"
+    android:layout_height="wrap_content">
+    <TextView
+        android:id="@+id/title"
+        android:paddingTop="20dp"
+        android:gravity="center_horizontal"
+        android:textColor="@color/black_b"
+        android:textSize="16sp"
+        android:text="选择操作"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_marginBottom="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/join_room"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/ic_join"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:text="加入"
+                android:layout_below="@+id/join_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content">
+            <ImageView
+                android:id="@+id/watch_room"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/ic_watch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_marginTop="10dp"
+                android:textSize="18sp"
+                android:textColor="@color/black"
+                android:text="观看"
+                android:layout_below="@+id/watch_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"/>
+
+
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>

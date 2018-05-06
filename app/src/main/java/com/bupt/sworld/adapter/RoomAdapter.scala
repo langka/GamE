@@ -1,8 +1,11 @@
 package com.bupt.sworld.adapter
 
+import java.time.LocalDate
+
 import android.content.Context
+import android.os.Build.VERSION_CODES
 import android.view.{LayoutInflater, View, ViewGroup}
-import android.widget.{BaseAdapter, TextView}
+import android.widget.{BaseAdapter, ImageView, TextView}
 import com.bupt.sworld.R
 import sse.xs.msg.room.RoomInfo
 
@@ -19,15 +22,30 @@ class RoomAdapter(ctx: Context, data: Array[(Long, RoomInfo)]) extends BaseAdapt
 
   override def getView(i: Int, view: View, viewGroup: ViewGroup): View = {
     val v = if (view == null) {
-      val vw = LayoutInflater.from(ctx).inflate(R.layout.item_room, null)
+      val vw = LayoutInflater.from(ctx).inflate(R.layout.item_room2, null)
       val holder = new Holder
-      holder.id = vw.findViewById(R.id.item_room_name)
+      holder.stateImg = vw.findViewById(R.id.item_room_state)
+      holder.roomId = vw.findViewById(R.id.item_room_id)
+      holder.roomMaster = vw.findViewById(R.id.item_room_master)
+      holder.roomTime = vw.findViewById(R.id.item_room_time)
+      holder.roomCount = vw.findViewById(R.id.item_room_count)
       vw.setTag(holder)
       vw
     } else view
     val holder = v.getTag().asInstanceOf[Holder]
     val current = rooms(i)._1
-    holder.id.setText(current + "")
+    holder.roomId.setText("房间号: " + current)
+    holder.roomMaster.setText("房主: " + rooms(i)._2.master.name)
+    val count = rooms(i)._2.players.count(_.isDefined)
+    if (count == 1) {
+      holder.stateImg.setImageDrawable(ctx.getResources.getDrawable(R.drawable.waiting))
+      holder.roomCount.setText("1/2")
+    } else {
+      holder.stateImg.setImageDrawable(ctx.getResources.getDrawable(R.drawable.full))
+      holder.roomCount.setText("2/2")
+    }
+    holder.roomTime.setText("22:05")
+
     v
   }
 
@@ -35,5 +53,9 @@ class RoomAdapter(ctx: Context, data: Array[(Long, RoomInfo)]) extends BaseAdapt
 }
 
 class Holder {
-  var id: TextView = _
+  var stateImg: ImageView = _
+  var roomId: TextView = _
+  var roomMaster: TextView = _
+  var roomTime: TextView = _
+  var roomCount: TextView = _
 }

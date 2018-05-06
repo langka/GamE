@@ -19,7 +19,7 @@ object MessageService {
   var publicMessageListener: Option[MessageListener] = None
 
 
-  def setPublicMessageListner(p: MessageListener): Unit = {
+  def setPublicMessageListener(p: MessageListener): Unit = {
     publicMessageListener = Some(p)
   }
 

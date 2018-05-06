@@ -5,13 +5,12 @@
     android:layout_height="match_parent"
     android:background="@color/TRANS_W1"
     android:clickable="true"
-    android:visibility="invisible">
+    android:visibility="visible">
 
     <com.wang.avi.AVLoadingIndicatorView
         android:id="@+id/loading_loader"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_centerInParent="true"
-        app:indicatorColor="@color/R1"
-        app:indicatorName="PacmanIndicator"/>
+        app:indicatorColor="@color/GREEN1" />
 </RelativeLayout>

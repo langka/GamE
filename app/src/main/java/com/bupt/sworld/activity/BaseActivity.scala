@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.{TextView, Toast}
 import com.wang.avi.AVLoadingIndicatorView
+import sse.xs.msg.user.User
 
 /**
   * Created by xusong on 2018/3/14.
@@ -37,7 +38,16 @@ class BaseActivity extends AppCompatActivity {
     val v:View = findViewById(R.id.loadingview)
     v.setVisibility(View.VISIBLE)
     val loadingIndicatorView = v.findViewById(R.id.loading_loader).asInstanceOf[AVLoadingIndicatorView]
+    loadingIndicatorView.setIndicator("PacmanIndicator")
     loadingIndicatorView.show()
+  }
+  def showLoading(name:String): Unit = {
+    val v:View = findViewById(R.id.loadingview)
+    val loadingIndicatorView = v.findViewById(R.id.loading_loader).asInstanceOf[AVLoadingIndicatorView]
+    loadingIndicatorView.setIndicator(name)
+    loadingIndicatorView.show()
+    v.setVisibility(View.VISIBLE)
+
   }
 
   def hideLoading(): Unit = {

@@ -17,7 +17,7 @@ case class EnterRoomSuccess(roomInfo: RoomInfo, id: Long)
 
 case class NewUserEnter(roomInfo: RoomInfo)
 
-case class TalkMessage(speaker: String, detail: String,id:Long)
+case class TalkMessage(speaker: String, detail: String, id: Long)
 
 
 case class LeaveRoom(user: User)
@@ -49,6 +49,10 @@ case object MoveSuccess
 
 case class OtherMove(from: Pos, to: Pos)
 
+case object Surrender
+
+case class EndGame(red: Boolean)
+
 
 case object GetAllRooms
 
@@ -62,4 +66,4 @@ case class DestroyRoom(id: Long)
 case class CreateSuccess(token: Long)
 
 //-------------20180409,id是房间id
-case class InviteMessage(user: User, roomId: Long, mid:Long)
+case class InviteMessage(user: User, roomId: Long, mid: Long)

@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/green_tr"
+    android:background="@color/GREEN1"
     android:orientation="vertical"
     android:paddingTop="16dp">
 
@@ -80,6 +80,8 @@
     </LinearLayout>
 
     <RelativeLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp">
@@ -131,6 +133,7 @@
     </RelativeLayout>
 
     <ListView
+        android:background="@color/green_a"
         android:id="@+id/room_talk"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

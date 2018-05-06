@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/gray_a"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="14dp"
+        android:layout_marginRight="14dp"
+        android:layout_marginTop="20dp"
+        android:background="@color/white"
+        android:minHeight="160dp">
+
+        <TextView
+            android:id="@+id/analyse_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="2016 - 12 - 21"
+            android:textColor="@color/black_b"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/analyse_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:gravity="center"
+            android:text="游戏胜者："
+            android:textColor="@color/black_d"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/dialog_winner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/analyse_time"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_toRightOf="@+id/text"
+            android:gravity="center"
+            android:text="红方"
+            android:textColor="@color/R1"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/dialog_content1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dialog_winner"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="10dp"
+            android:gravity="left"
+            android:text="你的口语巴拉巴拉"
+            android:textColor="@color/black_b"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/dialog_content2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dialog_content1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginTop="10dp"
+            android:gravity="left"
+            android:text="拉你的口语巴拉"
+            android:textColor="@color/black_b"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/dialog_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/dialog_content2"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="60dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:text="查看详情"
+            android:textColor="@color/blue_g"
+            android:textSize="12sp" />
+        <TextView
+            android:id="@+id/dialog_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp"
+            android:layout_below="@+id/dialog_content2"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:text="确认"
+            android:textColor="@color/blue_g"
+            android:textSize="12sp" />
+    </RelativeLayout>
+
+
+</LinearLayout>

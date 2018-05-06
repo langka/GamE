@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    xmlns:soulwolf="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <net.soulwolf.widget.ratiolayout.widget.RatioRelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_personal"
+        soulwolf:datumRatio="datumWidth"
+        soulwolf:heightRatio="5.0"
+        soulwolf:widthRatio="12.0">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/item_myinfo_portrait_container"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="14dp"
+            android:layout_marginTop="60dp"
+            android:src="@drawable/a">
+
+        </de.hdodenhof.circleimageview.CircleImageView>
+
+
+        <RelativeLayout
+            android:id="@+id/item_myinfo_name_container"
+            android:layout_width="match_parent"
+            android:layout_height="58dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="26dp"
+            android:layout_toRightOf="@+id/item_myinfo_portrait_container"
+            android:paddingBottom="7dp">
+
+            <TextView
+                android:id="@+id/myinfo_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:ellipsize="middle"
+                android:maxEms="10"
+                android:maxLines="1"
+                android:minWidth="20dp"
+                android:text="高远"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/item_myinfo_portrait_exp_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/item_myinfo_name_container"
+            android:layout_toRightOf="@+id/item_myinfo_portrait_container">
+
+            <TextView
+                android:id="@+id/myinfo_level"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:background="@drawable/shape_hwinfo_level"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="lv 21"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_toRightOf="@+id/myinfo_level">
+
+                <ProgressBar
+                    android:id="@+id/myinfo_level_progress"
+                    style="@style/progressBarYellow"
+                    android:layout_width="145dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/shape_progressbar_yellow" />
+
+                <TextView
+                    android:id="@+id/item_myinfo_portrait_exp_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/black_d"
+                    android:textSize="10sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/myinfo_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/myinfo_level"
+                android:layout_below="@+id/myinfo_level"
+                android:layout_marginTop="10dp"
+                android:text="没有个人描述~~" />
+
+        </RelativeLayout>
+
+
+        <TextView
+            android:id="@+id/item_myinfo_portrait_exp_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/item_myinfo_portrait_exp_container"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_toRightOf="@+id/item_myinfo_portrait_container"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_alignParentBottom="true"
+            android:background="@color/gray_b" />
+    </net.soulwolf.widget.ratiolayout.widget.RatioRelativeLayout>
+</RelativeLayout>

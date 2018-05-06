@@ -69,6 +69,11 @@ class HelloActivity extends BaseActivity {
     pwdEditText = findViewById(R.id.login_pwd)
     submitTextView = findViewById(R.id.login_submit)
     registerTextView = findViewById(R.id.login_register)
+    registerTextView.setOnClickListener(new OnClickListener {
+      override def onClick(view: View): Unit = {
+        RegisterActivity.Start(HelloActivity.this)
+      }
+    })
     otherWay = findViewById(R.id.login_other_container)
     setTitle("登录")
     otherWay setOnClickListener { v: View =>

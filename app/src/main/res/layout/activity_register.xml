@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:background="@color/W1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_marginTop="10dp"
+            android:textSize="20sp"
+            android:text="注册"
+            android:gravity="center_horizontal"
+            android:textColor="@color/black_a"
+            android:layout_width="match_parent"
+            android:layout_height="30dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="4px"
+            android:layout_marginTop="15dp"
+            android:background="@color/gray_b" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white">
+
+            <EditText
+                android:id="@+id/name_edittext"
+                style="@style/edittext_singleline"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:drawableLeft="@drawable/ic_verification_code"
+                android:drawablePadding="15dp"
+                android:hint="请输入账户名称"
+                android:textColor="@color/black_d"
+                android:textColorHint="@color/black_b" />
+
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:layout_marginLeft="10dp"
+            android:background="@color/gray_b" />
+
+        <EditText
+            android:id="@+id/pwd_edittext"
+            style="@style/edittext_singleline"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:drawableLeft="@drawable/ic_password"
+            android:drawablePadding="15dp"
+            android:hint="设置密码，支持6-20位数字字母和符号"
+            android:inputType="textPassword"
+            android:textColor="@color/black_d"
+            android:textColorHint="@color/black_b" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/gray_b" />
+
+        <Button
+            android:id="@+id/confirm_btn"
+            style="@style/btn_blue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="20dp"
+            android:text="确定" />
+    </LinearLayout>
+
+    <include
+        android:id="@+id/loadingview"
+        layout="@layout/layout_loading"
+        android:visibility="invisible" />
+</RelativeLayout>

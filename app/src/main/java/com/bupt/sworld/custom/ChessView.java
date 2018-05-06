@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by xusong on 2018/1/14.
@@ -181,7 +182,7 @@ public class ChessView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isOk)
+        if (!isOk || gameState != 0)//如果不可用，或者游戏状态为结束，直接返回
             return true;
         if (holder == null) {
             switch (event.getAction()) {
@@ -750,9 +751,64 @@ public class ChessView extends View {
     }
 
 
-    //走一步引起界面刷新
+    private int gameState = 0;
+
+    //走一步引起界面刷新,并且更新游戏状态
     public void confirmNextStep(int fx, int fy, int tx, int ty) {
         holder = new DataHolder(board[fx][fy], fx, fy, tx, ty);
+        Piece dead = board[tx][ty];
+        if (dead != null) {
+            if (dead.state == 6) {//将 帅死亡
+                if (dead.side == 1) {//红帅死亡
+                    gameState = 2;
+                } else {//黑将死亡
+                    gameState = 1;
+                }
+            }
+        }
+        //判断 将帅是否直接会面
+        if (gameState == 0 && 3 <= fx && fx <= 5) {//必须是中间3列
+            //模拟这一步走之后的效果
+            Piece killed = board[tx][ty];
+            board[tx][ty] = board[fx][fy];
+            board[fx][fy] = null;
+
+            int a = -1;
+            int b = -1;
+            for (int i = 0; i <= 2; i++) {//从上往下
+                Piece p = board[fx][i];
+                if (p != null && p.state == 6) {
+                    a = i;
+                }
+            }
+            for (int i = 7; i <= 9; i++) {
+                Piece p = board[fx][i];
+                if (p != null && p.state == 6) {
+                    b = i;
+                }
+            }
+            if (a != -1 && b != -1) {//将帅同一列,判断中间是否有单位
+                boolean vacant = true;
+                for (int i = a + 1; i <= b - 1; i++) {
+                    if (board[fx][i] != null) {
+                        vacant = false;
+                        break;
+                    }
+                }
+                if (vacant) {//如果中间为空
+                    if (redTurn) {//现在是红方的落子，红方移动导致双方会面
+                        gameState = 2;
+                    } else
+                        gameState = 1;
+                }
+            }
+
+            //现场复原，剩余的代码才会正常处理棋子移动逻辑
+            board[fx][fy] = board[tx][ty];
+            board[tx][ty] = killed;
+        }
+
+
         board[fx][fy] = null;
         Message message = Message.obtain();
         message.what = 0;
@@ -760,5 +816,21 @@ public class ChessView extends View {
         redTurn = !redTurn;
     }
 
+    //0 还没有结束， 1红色胜利，2黑色胜利
+    public int getGameState() {
+        return gameState;
+    }
+
+    public String analyse(List<Piece> list){
+        StringBuilder x = new StringBuilder();
+        x.append("[");
+        for(Piece each:list){
+            x.append(" ").append(each.getName());
+        }
+        x.append("]");
+        return x.toString();
+
+
+    }
 }
 

@@ -3,10 +3,11 @@ package com.bupt.sworld.service
 import akka.util.Timeout
 import com.bupt.sworld.actor.RoomManageActor._
 import com.bupt.sworld.actor.UserManageActor
+import com.bupt.sworld.actor.UserManageActor.RegisterCallBack
 import com.bupt.sworld.actor.common.Actors
 import sse.xs.msg.CommonFailure
 import sse.xs.msg.room._
-import sse.xs.msg.user.{LoginFailure, LoginRequest, LoginSuccess}
+import sse.xs.msg.user._
 
 import scala.concurrent.duration._
 
@@ -26,6 +27,13 @@ object NetWorkService {
 
   def testConnection(onSucess: => Unit, onFailure: => Unit): Unit = {
     Actors.tryConnect(onSucess, onFailure)
+  }
+
+
+  def register(account: String, pwd: String, onSuccess: RegisterSuccess => Unit, onFailure: RegisterFailure => Unit): Unit = {
+    val request = RegisterRequest(account, pwd)
+    Actors.localUserRef ! RegisterCallBack(request, onSuccess, onFailure)
+
   }
 
   def login(account: String, pwd: String, success: LoginSuccess => Unit, failure: LoginFailure => Unit): Unit = {
@@ -62,16 +70,26 @@ object NetWorkService {
     Actors.localRoomRef ! t
   }
 
-  def sendPublicMessage(t:TalkMessage):Unit = {
+  def sendPublicMessage(t: TalkMessage): Unit = {
     Actors.localUserRef ! t
   }
 
   def sendInviteToRoom(i: InviteMessage): Unit = {
-    Actors.localRoomRef ! i
+    Actors.localUserRef ! i
   }
 
   def movePiece(i: Move, onS: String => Unit, onF: CommonFailure => Unit): Unit = {
     Actors.localRoomRef ! MoveCallBack(i, onS, onF)
+  }
+
+  def surrender(): Unit = {
+    //投降会导致state变为inRoom，必须立即结束当前activity
+    Actors.localRoomRef ! Surrender
+  }
+
+  def endGame(redWin: Boolean): Unit = {
+    // TODO:
+    Actors.localRoomRef ! EndGame(redWin)
   }
 
 }
