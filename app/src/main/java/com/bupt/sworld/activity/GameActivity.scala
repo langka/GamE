@@ -1,5 +1,6 @@
 package com.bupt.sworld.activity
 
+import java.text.SimpleDateFormat
 import java.time.{LocalDate, LocalDateTime}
 import java.util.stream.Collectors
 
@@ -14,8 +15,8 @@ import com.bupt.sworld.adapter.GameMessageAdapter
 import com.bupt.sworld.custom.ChessView
 import com.bupt.sworld.custom.ChessView.OnStepMoveListener
 import com.bupt.sworld.service.MessageService.ConfirmMsg
-import com.bupt.sworld.service.{LocalService, MessageListener, MessageService, NetWorkService}
-import sse.xs.msg.room.{Move, OtherMove, Pos, TalkMessage}
+import com.bupt.sworld.service._
+import sse.xs.msg.room._
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
@@ -32,11 +33,11 @@ class GameActivity extends BaseActivity {
   var surrenderView: View = _
   var sendView: View = _
   var msgContentEdit: EditText = _
-  var  testView:TextView  = _
+  var testView: TextView = _
 
   var gameEnded = false
 
-
+  var iswatch = true
   //可能move,othermove,talk
   val messages: ArrayBuffer[AnyRef] = ArrayBuffer()
 
@@ -45,15 +46,20 @@ class GameActivity extends BaseActivity {
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_game)
+    iswatch = getIntent.getBooleanExtra("iswatch", true)
     initView()
   }
 
   private def initView(): Unit = {
     chessView = findViewById(R.id.chview)
+    if(iswatch){
+      chessView.setOk(false)
+    }
     gameEventList = findViewById(R.id.game_list)
     testView = findViewById(R.id.test_pop)
     surrenderView = findViewById(R.id.surrender)
     sendView = findViewById(R.id.send)
+    msgContentEdit = findViewById(R.id.msg_content)
     testView.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
         val r = new Random()
@@ -73,9 +79,11 @@ class GameActivity extends BaseActivity {
       override def onClick(view: View): Unit = {
         val str = msgContentEdit.getText.toString.trim
         if (str == "") {
-
+          showText("无法发送空消息!")
         } else {
-          // TODO: send gamemessage
+          msgContentEdit.setText("")
+          val m = TalkMessage(LocalService.currentUser.name, str, IdService.nextId())
+          NetWorkService.sendGameMessage(m)
         }
       }
     })
@@ -105,6 +113,7 @@ class GameActivity extends BaseActivity {
               showAnalyseDialog(true)
               NetWorkService.endGame(true)
             case 2 =>
+              showAnalyseDialog(false)
               NetWorkService.endGame(false)
           }
         }, failure => {
@@ -129,9 +138,24 @@ class GameActivity extends BaseActivity {
             chessView.confirmNextStep(from.x, from.y, to.x, to.y)
             messages.append(o)
             gameMessageAdapter.notifyDataSetChanged()
+            chessView.getGameState match {
+              case 0 => //do nothing,go on the game
+              case 1 => //red win the game
+                // TODO: 添加其他代码，如弹出对话框，对战统计等等
+                showAnalyseDialog(true)
+                NetWorkService.endGame(true)
+              case 2 =>
+                showAnalyseDialog(false)
+                NetWorkService.endGame(false)
+            }
+
           case c: ConfirmMsg =>
             gameMessageAdapter.confirms.append(c.id)
             gameMessageAdapter.notifyDataSetChanged()
+
+          case OtherSurrender =>
+            val redWin = LocalService.currentRoom.players(0).exists(_.name == LocalService.currentUser.name)
+            showAnalyseDialog(redWin)
 
           case _ =>
             showText("unknown message received!")
@@ -167,12 +191,15 @@ class GameActivity extends BaseActivity {
     }
     val dialog = new Dialog(this, R.style.dialog)
     val layout = LayoutInflater.from(this).inflate(R.layout.dialog_analyse, null)
-    val time = LocalDateTime.now().toString
+    val time = longToTime(System.currentTimeMillis())
+    val timeView: TextView = layout.findViewById(R.id.analyse_time)
+    timeView.setText(time)
     val winnerView: TextView = layout.findViewById(R.id.dialog_winner)
+    winnerView.setText(tip)
     val redView: TextView = layout.findViewById(R.id.dialog_content1)
     val blackView: TextView = layout.findViewById(R.id.dialog_content2)
-    val redText = chessView.analyse(chessView.getRedDead)
-    val blackText = chessView.analyse(chessView.getBlackDead)
+    val redText = "红方失子:" + chessView.analyse(chessView.getRedDead)
+    val blackText = "黑方失子:" + chessView.analyse(chessView.getBlackDead)
     redView.setText(redText)
     blackView.setText(blackText)
     val watchMore: View = layout.findViewById(R.id.dialog_more)
@@ -185,8 +212,10 @@ class GameActivity extends BaseActivity {
     })
     watchMore.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
+        WatchActivity.start(GameActivity.this)
         dialog.dismiss()
 
+        GameActivity.this.finish()
       }
     })
     dialog.setCancelable(true)
@@ -200,12 +229,18 @@ class GameActivity extends BaseActivity {
 
   }
 
+  private def longToTime(l: Long) = {
+    val format = new SimpleDateFormat("HH:mm")
+    val time = format.format(l)
+    time
+  }
 
 }
 
 object GameActivity {
-  def Start(ctx: Context): Unit = {
+  def Start(ctx: Context, iswatch: Boolean): Unit = {
     val i = new Intent(ctx, classOf[GameActivity])
+    i.putExtra("iswatch", iswatch)
     ctx.startActivity(i)
   }
 }

@@ -72,7 +72,31 @@ class RoomManageActor extends Actor {
       remoteRef ! CreateRoom(LocalService.currentUser)
       context.system.scheduler.scheduleOnce(5 seconds, self, CreateTimeout)
       become(waitForCreateResp(s, f))
+    case w: WatchRoomCallback =>
+      val selection = roomSelection(w.id)
+      selection ! WatchGame(LocalService.currentUser)
+      context.system.scheduler.scheduleOnce(10 seconds, self, EnterTimeout)
+      become(waitForWatch(w.onS, w.onF))
 
+  }
+
+  def waitForWatch(onS: EnterRoomSuccess => Unit, onF: CommonFailure => Unit): Receive = {
+    case EnterTimeout =>
+      val failure = CommonFailure("进入房间超时!")
+      post {
+        onF(failure)
+      }
+      become(ready)
+    case e: EnterRoomSuccess =>
+      post {
+        onS(e)
+      }
+      become(inRoom(e.id))
+    case c: CommonFailure =>
+      post {
+        onF(c)
+      }
+      become(ready)
   }
 
   def waitForRooms(s: RoomSearchResponse => Unit, f: CommonFailure => Unit): Receive = {
@@ -155,12 +179,19 @@ class RoomManageActor extends Actor {
   val talkMsgs = new mutable.TreeSet[Long]
 
   def gameMessageDispatcher(id: Long): Receive = {
+
+    case OtherSurrender =>
+      post {
+        MessageService.onGameMessageArrive(OtherSurrender)
+      }
+      become(inRoom(id))
+
     //投降
     case Surrender =>
       roomSelection(id) ! Surrender
       become(inRoom(id))
     //游戏结束由客户端自行判断，不需要等待服务器端发送消息
-    case e:EndGame =>
+    case e: EndGame =>
       roomSelection(id) ! e
       become(inRoom(id))
     case e: OtherMove =>
@@ -168,24 +199,8 @@ class RoomManageActor extends Actor {
         MessageService.onGameMessageArrive(e)
       }
     case t: TalkMessage =>
-      //自己发的信息
-      if (t.speaker == LocalService.currentUser.name) {
-        if (talkMsgs.contains(t.id)) {
-          //确认消息
-          post {
-            MessageService.onGameMessageArrive(ConfirmMsg(t.id))
-          }
-        }
-        else {
-          roomSelection(id) ! t
-          talkMsgs.add(t.id)
-        }
-      }
-
-      else {
-        post {
-          MessageService.onGameMessageArrive(t)
-        }
+      post {
+        MessageService.onGameMessageArrive(t)
       }
 
   }
@@ -197,6 +212,10 @@ class RoomManageActor extends Actor {
         MessageService.onRoomMessageArrive(g)
       }
       become(gameStarted(id))
+
+
+    case m:MyTalkMessage =>
+      roomSelection(id) ! m.msg
     case t: TalkMessage =>
       post {
         MessageService.onRoomMessageArrive(t)
@@ -212,8 +231,8 @@ class RoomManageActor extends Actor {
         MessageService.onRoomMessageArrive(o)
       }
 
-    case s:SwapSuccess =>
-      post{
+    case s: SwapSuccess =>
+      post {
         MessageService.onRoomMessageArrive(s)
       }
   }
@@ -355,6 +374,9 @@ object RoomManageActor {
 
 
   case class MyTalkMessage(msg: TalkMessage)
+
+
+  case class WatchRoomCallback(id: Long, onS: EnterRoomSuccess => Unit, onF: CommonFailure => Unit)
 
 }
 

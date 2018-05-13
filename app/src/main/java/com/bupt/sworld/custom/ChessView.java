@@ -49,6 +49,15 @@ public class ChessView extends View {
     //作为在move过程中记录的那个piece
     private volatile DataHolder holder = null;
 
+
+    public void setPieceAt(int x, int y, Piece z) {
+        board[x][y] = z;
+    }
+
+    public Piece getPieceAt(int x, int y) {
+        return board[x][y];
+    }
+
     private static class DataHolder {
         Piece p;
         int fx;
@@ -758,6 +767,12 @@ public class ChessView extends View {
         holder = new DataHolder(board[fx][fy], fx, fy, tx, ty);
         Piece dead = board[tx][ty];
         if (dead != null) {
+            if (dead.state == 0)
+                redDead.add(dead);
+            else
+                blackDead.add(dead);
+        }
+        if (dead != null) {
             if (dead.state == 6) {//将 帅死亡
                 if (dead.side == 1) {//红帅死亡
                     gameState = 2;
@@ -821,13 +836,13 @@ public class ChessView extends View {
         return gameState;
     }
 
-    public String analyse(List<Piece> list){
+    public String analyse(List<Piece> list) {
         StringBuilder x = new StringBuilder();
-        x.append("[");
-        for(Piece each:list){
+        x.append("[ ");
+        for (Piece each : list) {
             x.append(" ").append(each.getName());
         }
-        x.append("]");
+        x.append(" ]");
         return x.toString();
 
 

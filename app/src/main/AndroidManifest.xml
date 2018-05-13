@@ -52,6 +52,13 @@
         <activity
             android:name=".activity.RegisterActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.WatchActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.HistoryActivity"
+            android:screenOrientation="portrait" />
+
 
     </application>
 

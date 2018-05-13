@@ -9,7 +9,7 @@ import sse.xs.msg.user.User
   */
 sealed trait RoomMsg
 
-case class RoomInfo(players: Array[Option[User]], master: User)
+case class RoomInfo(players: Array[Option[User]], master: User, watchers: List[User])
 
 case class EnterRoom(user: User)
 
@@ -51,6 +51,8 @@ case class OtherMove(from: Pos, to: Pos)
 
 case object Surrender
 
+case object OtherSurrender
+
 case class EndGame(red: Boolean)
 
 
@@ -67,3 +69,8 @@ case class CreateSuccess(token: Long)
 
 //-------------20180409,id是房间id
 case class InviteMessage(user: User, roomId: Long, mid: Long)
+
+//20180506
+case class WatchGame(user:User)
+
+case object WatcherLeave

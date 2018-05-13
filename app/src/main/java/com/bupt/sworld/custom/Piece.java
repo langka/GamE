@@ -1,6 +1,6 @@
 package com.bupt.sworld.custom;
 
-class Piece {
+public class Piece {
     int state;//身份 0-6 兵 炮 车 马 象 士 将
     int side;//属于哪一边1 红色 2黑色
 

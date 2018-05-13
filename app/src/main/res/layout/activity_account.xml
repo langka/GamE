@@ -36,7 +36,7 @@
                     android:background="@drawable/image_view_bound_shape"
                     android:padding="5dp"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/xusong"/>
+                    android:src="@drawable/a"/>
             </RelativeLayout>
 
             <LinearLayout

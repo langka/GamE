@@ -84,22 +84,22 @@ class HomePageActivity extends BaseActivity {
         updateRoomListView()
       }
     })
-//    roomList.setOnItemClickListener(new JavaOnItemClickListener {
-//      override protected def onItemClick(location: Int): Unit = {
-//        showLoading()
-//        val current = roomAdapter.getItem(location).asInstanceOf[(Long, RoomInfo)]
-//        showText("ROOM:" + current._1)
-//        NetWorkService.enterRoom(current._1, resp => {
-//          hideLoading()
-//          LocalService.currentRoom = resp.roomInfo
-//          LocalService.currentRid = resp.id
-//          RoomActivity.start(HomePageActivity.this)
-//        }, failure => {
-//          hideLoading()
-//          showText(failure.reason)
-//        })
-//      }
-//    })
+    //    roomList.setOnItemClickListener(new JavaOnItemClickListener {
+    //      override protected def onItemClick(location: Int): Unit = {
+    //        showLoading()
+    //        val current = roomAdapter.getItem(location).asInstanceOf[(Long, RoomInfo)]
+    //        showText("ROOM:" + current._1)
+    //        NetWorkService.enterRoom(current._1, resp => {
+    //          hideLoading()
+    //          LocalService.currentRoom = resp.roomInfo
+    //          LocalService.currentRid = resp.id
+    //          RoomActivity.start(HomePageActivity.this)
+    //        }, failure => {
+    //          hideLoading()
+    //          showText(failure.reason)
+    //        })
+    //      }
+    //    })
     roomList.setOnItemClickListener(new JavaOnItemClickListener {
       override protected def onItemClick(location: Int): Unit = {
         val current = roomAdapter.getItem(location).asInstanceOf[(Long, RoomInfo)]
@@ -113,12 +113,12 @@ class HomePageActivity extends BaseActivity {
     })
     createView.setOnClickListener((v: View) => {
       NetWorkService.createRoom(success => {
-        val r = RoomInfo(Array(Some(LocalService.currentUser), None), LocalService.currentUser)
+        val r = RoomInfo(Array(Some(LocalService.currentUser), None), LocalService.currentUser, List())
         LocalService.currentRoom = r
         LocalService.currentRid = success.token
         showText("create room:" + success.token)
 
-        RoomActivity.start(HomePageActivity.this)
+        RoomActivity.startJoin(HomePageActivity.this)
       }, failure => {
         showText(failure.reason)
       })
@@ -156,7 +156,7 @@ class HomePageActivity extends BaseActivity {
               hideLoading()
               LocalService.currentRoom = es.roomInfo
               LocalService.currentRid = es.id
-              RoomActivity.start(HomePageActivity.this)
+              RoomActivity.startJoin(HomePageActivity.this)
 
 
             }, failure => {
@@ -240,15 +240,15 @@ class HomePageActivity extends BaseActivity {
     })
   }
 
-  private def levelOf(p: User):Int = {
+  private def levelOf(p: User): Int = {
     (p.win * 7 + p.lose * 3) / 10
   }
 
   private def showRoomView(r: (Long, RoomInfo)): Unit = {
     val dialog = new Dialog(this, R.style.dialog)
-    val layout = getLayoutInflater.inflate(R.layout.dialog_room_op,null)
-    val join:View = layout.findViewById(R.id.join_room)
-    val watch:View = layout.findViewById(R.id.watch_room)
+    val layout = getLayoutInflater.inflate(R.layout.dialog_room_op, null)
+    val join: View = layout.findViewById(R.id.join_room)
+    val watch: View = layout.findViewById(R.id.watch_room)
     join.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
         showLoading()
@@ -258,7 +258,7 @@ class HomePageActivity extends BaseActivity {
           hideLoading()
           LocalService.currentRoom = resp.roomInfo
           LocalService.currentRid = resp.id
-          RoomActivity.start(HomePageActivity.this)
+          RoomActivity.startJoin(HomePageActivity.this)
         }, failure => {
           hideLoading()
           showText(failure.reason)
@@ -267,8 +267,19 @@ class HomePageActivity extends BaseActivity {
     })
     watch.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
-        showText("观战功能暂不支持!")
+        showLoading()
         dialog.dismiss()
+        NetWorkService.watchRoom(r._1, e => {
+          hideLoading()
+          LocalService.currentRoom = e.roomInfo
+          LocalService.currentRid = e.id
+          RoomActivity.startWatch(HomePageActivity.this)
+        }, c => {
+          hideLoading()
+          showText(c.reason)
+        })
+
+
       }
     })
 

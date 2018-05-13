@@ -48,7 +48,7 @@
             android:layout_toRightOf="@+id/text"
             android:gravity="center"
             android:text="红方"
-            android:textColor="@color/R1"
+            android:textColor="@color/GREEN1"
             android:textSize="16sp" />
 
         <TextView
@@ -80,6 +80,7 @@
             android:textSize="12sp" />
 
         <TextView
+            android:visibility="gone"
             android:id="@+id/dialog_more"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,13 +96,13 @@
             android:id="@+id/dialog_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="60dp"
+            android:layout_centerHorizontal="true"
             android:layout_below="@+id/dialog_content2"
             android:layout_marginBottom="20dp"
             android:layout_marginTop="20dp"
             android:text="确认"
             android:textColor="@color/blue_g"
-            android:textSize="12sp" />
+            android:textSize="20sp" />
     </RelativeLayout>
 
 

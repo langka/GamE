@@ -15,6 +15,16 @@ class User(val id: Int, val name: String, val pwd: String, val age: Int, val win
       case _ => false
     }
   }
+
+  def modifyDesc(newDesc: String): User = {
+    new User(id, name, pwd, age, win, lose, newDesc)
+  }
+
+  def modifyAge(newAge: Int): User = {
+    new User(id, name, pwd, newAge, win, lose, description)
+  }
+
+
 }
 
 object User {
@@ -30,10 +40,15 @@ case class LoginRequest(account: String, pwd: String) extends UserMessage
 
 case class LoginSuccess(user: User) extends UserMessage
 
-case class LoginFailure(reason:String ) extends UserMessage
+case class LoginFailure(reason: String) extends UserMessage
 
-case class RegisterRequest(user:String,pwd:String) extends UserMessage
+case class RegisterRequest(user: String, pwd: String) extends UserMessage
 
-case class RegisterSuccess(user:User) extends UserMessage
+case class RegisterSuccess(user: User) extends UserMessage
 
-case class RegisterFailure(reason:String) extends UserMessage
+case class RegisterFailure(reason: String) extends UserMessage
+
+
+case class ModifyU(user: User)
+
+case class ModifySuccess(user: User)

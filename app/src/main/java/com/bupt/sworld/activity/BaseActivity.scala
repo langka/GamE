@@ -68,9 +68,9 @@ class BaseActivity extends AppCompatActivity {
     val titleView = layout.findViewById(R.id.dialog_confirmcancel_title).asInstanceOf[TextView]
     titleView.setText("Tips")
     val confirmView = layout.findViewById(R.id.dialog_confirmcancel_confirm).asInstanceOf[TextView]
-    confirmView.setText(tips(2))
+    confirmView.setText(tips(1))
     val cancel = layout.findViewById(R.id.dialog_confirmcancel_cancel).asInstanceOf[TextView]
-    cancel.setText(tips(1))
+    cancel.setText(tips(2))
     val textView = layout.findViewById(R.id.dialog_confirmcancel_detail).asInstanceOf[TextView]
     textView.setVisibility(View.VISIBLE)
     textView.setText(tips.head)
@@ -78,7 +78,7 @@ class BaseActivity extends AppCompatActivity {
     confirmView.setOnClickListener(new View.OnClickListener() {
       override def onClick(v: View): Unit = {
         dialog.dismiss()
-        onCancel
+        onConfirm
       }
     })
 

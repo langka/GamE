@@ -44,16 +44,14 @@ class GameMessageAdapter(ctx: Context, dt: ArrayBuffer[AnyRef]) extends BaseAdap
     val current = getItem(i)
     val str = current match {
       case m: Move =>
+        vholder.content.setTextColor(ctx.getResources.getColor(R.color.blue_a))
         "我的移动: " + stringOfPos(m.from, m.to)
       case o: OtherMove =>
+        vholder.content.setTextColor(ctx.getResources.getColor(R.color.blue_a))
         "敌方移动: " + stringOfPos(o.from, o.to)
       case t: TalkMessage =>
-        val tip = if (t.speaker == LocalService.currentUser.name) {
-          if (confirms.contains(t.id)) "已送达" else "未确认"
-        } else {
-          ""
-        }
-        t.speaker + " : " + t.detail + "  " + tip
+        vholder.content.setTextColor(ctx.getResources.getColor(R.color.black_a))
+        "[" + t.speaker + "]" + " " + t.detail
     }
     vholder.content.setText(str)
     vvv

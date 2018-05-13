@@ -3,9 +3,10 @@ package com.bupt.sworld.service
 import akka.util.Timeout
 import com.bupt.sworld.actor.RoomManageActor._
 import com.bupt.sworld.actor.UserManageActor
-import com.bupt.sworld.actor.UserManageActor.RegisterCallBack
+import com.bupt.sworld.actor.UserManageActor.{HistoryCallBack, ModifyCallBack, RegisterCallBack}
 import com.bupt.sworld.actor.common.Actors
 import sse.xs.msg.CommonFailure
+import sse.xs.msg.game.GameHistories
 import sse.xs.msg.room._
 import sse.xs.msg.user._
 
@@ -67,7 +68,7 @@ object NetWorkService {
   }
 
   def sendRoomMessage(t: TalkMessage): Unit = {
-    Actors.localRoomRef ! t
+    Actors.localRoomRef ! MyTalkMessage(t)
   }
 
   def sendPublicMessage(t: TalkMessage): Unit = {
@@ -90,6 +91,22 @@ object NetWorkService {
   def endGame(redWin: Boolean): Unit = {
     // TODO:
     Actors.localRoomRef ! EndGame(redWin)
+  }
+
+  def sendGameMessage(m: TalkMessage): Unit = {
+    Actors.localRoomRef ! MyTalkMessage(m)
+  }
+
+  def modifyUserInfo(u: User, success: User => Unit, failure: CommonFailure => Unit): Unit = {
+    Actors.localUserRef ! ModifyCallBack(ModifyU(u), success, failure)
+  }
+
+  def getGameHistories(id: Int, onSuccess: GameHistories => Unit, onFailure: CommonFailure => Unit): Unit = {
+    Actors.localUserRef ! HistoryCallBack(id, onSuccess, onFailure)
+  }
+
+  def watchRoom(id: Long, onS: EnterRoomSuccess=>Unit, onF: CommonFailure => Unit): Unit = {
+    Actors.localRoomRef ! WatchRoomCallback(id, onS, onF)
   }
 
 }

@@ -36,6 +36,8 @@ class RoomActivity extends BaseActivity {
 
   var roomMsgAdapter: RoomMsgAdapter = _
 
+  var watch = true
+
   override def onCreate(savedInstanceState: Bundle): Unit = {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_room)
@@ -43,6 +45,9 @@ class RoomActivity extends BaseActivity {
   }
 
   def initView(): Unit = {
+
+    watch = getIntent.getBooleanExtra("iswatch", true)
+
     redView = findViewById(R.id.red_container)
     blackView = findViewById(R.id.black_container)
     swap = findViewById(R.id.swap)
@@ -53,14 +58,13 @@ class RoomActivity extends BaseActivity {
     sendView = findViewById(R.id.send)
     msgList = findViewById(R.id.room_talk)
     inviteView = findViewById(R.id.invite)
-
     sendView.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
         val str = msgEdit.getText.toString.trim
-        if(str==null){
+        if (str == null) {
           showText("消息内容不可以为空!")
-        }else{
-          val t = TalkMessage(LocalService.currentUser.name,str,IdService.nextId())
+        } else {
+          val t = TalkMessage(LocalService.currentUser.name, str, IdService.nextId())
           msgEdit.setText("")
           NetWorkService.sendRoomMessage(t)
         }
@@ -74,38 +78,41 @@ class RoomActivity extends BaseActivity {
         roomMsgAdapter.add(i)
       }
     })
-    swap.setOnClickListener((v: View) => {
-      NetWorkService.swap(LocalService.currentRid, r => {
-        LocalService.currentRoom = r
-        updateRoomInfoView()
-      }, f => {
-        showText(f.reason)
-        updateRoomInfoView()
-      })
-    })
+
     leave.setOnClickListener((v: View) => {
       LocalService.currentRid = -1
       LocalService.currentRoom = null
       NetWorkService.leave()
       finish()
     })
-    kick.setOnClickListener(new OnClickListener {
-      override def onClick(view: View): Unit = {
-        showText("以和为贵，为什么要踢人呢?")
-      }
-    })
-    start.setOnClickListener((v: View) => {
-      if (LocalService.currentRoom.players.forall(_.isDefined)) {
-        NetWorkService.startGame(info => {
-          LocalService.currentRoom = info
-          GameActivity.Start(RoomActivity.this)
-        }, faiure => {
-          showText(faiure.reason)
+    if(!watch){
+      swap.setOnClickListener((v: View) => {
+        NetWorkService.swap(LocalService.currentRid, r => {
+          LocalService.currentRoom = r
+          updateRoomInfoView()
+        }, f => {
+          showText(f.reason)
+          updateRoomInfoView()
         })
-      } else {
-        showText("房间人数不足，无法开始游戏")
-      }
-    })
+      })
+      kick.setOnClickListener(new OnClickListener {
+        override def onClick(view: View): Unit = {
+          showText("以和为贵，为什么要踢人呢?")
+        }
+      })
+      start.setOnClickListener((v: View) => {
+        if (LocalService.currentRoom.players.forall(_.isDefined)) {
+          NetWorkService.startGame(info => {
+            LocalService.currentRoom = info
+            GameActivity.Start(RoomActivity.this, watch)
+          }, faiure => {
+            showText(faiure.reason)
+          })
+        } else {
+          showText("房间人数不足，无法开始游戏")
+        }
+      })
+    }
     roomMsgAdapter = new RoomMsgAdapter(this, ArrayBuffer())
 
     MessageService.setRoomMsgListener(new MessageListener {
@@ -117,7 +124,7 @@ class RoomActivity extends BaseActivity {
             //在进入游戏时进行一次同步
             LocalService.currentRoom = g.roomInfo
             updateRoomInfoView()
-            GameActivity.Start(RoomActivity.this)
+            GameActivity.Start(RoomActivity.this, watch)
 
           case t: TalkMessage =>
             roomMsgAdapter.add(t)
@@ -185,9 +192,17 @@ class RoomActivity extends BaseActivity {
 }
 
 object RoomActivity {
-  def start(ctx: Context): Unit = {
+  def startJoin(ctx: Context): Unit = {
     val intent = new Intent(ctx, classOf[RoomActivity])
+    intent.putExtra("iswatch", false)
     ctx.startActivity(intent)
   }
+
+  def startWatch(ctx: Context): Unit = {
+    val intent = new Intent(ctx, classOf[RoomActivity])
+    intent.putExtra("iswatch", true)
+    ctx.startActivity(intent)
+  }
+
 
 }
