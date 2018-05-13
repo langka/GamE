@@ -1,14 +1,15 @@
 package com.bupt.sworld.activity
 
+import android.app.Dialog
 import android.content.{Context, Intent}
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.Log
-import android.view.View
+import android.view.{LayoutInflater, View}
 import android.view.View.OnClickListener
 import android.widget.{EditText, ListView, TextView}
 import com.bupt.sworld.R
-import com.bupt.sworld.adapter.RoomMsgAdapter
+import com.bupt.sworld.adapter.{AudienceAdapter, RoomMsgAdapter}
 import com.bupt.sworld.service._
 import sse.xs.msg.user.User
 import com.bupt.sworld.convert.Implicit._
@@ -34,6 +35,9 @@ class RoomActivity extends BaseActivity {
   var msgList: ListView = _
   var inviteView: View = _
 
+  var audience:View = _
+
+
   var roomMsgAdapter: RoomMsgAdapter = _
 
   var watch = true
@@ -54,10 +58,19 @@ class RoomActivity extends BaseActivity {
     leave = findViewById(R.id.leave)
     kick = findViewById(R.id.kick)
     start = findViewById(R.id.start)
+    audience = findViewById(R.id.audience)
     msgEdit = findViewById(R.id.input_message)
     sendView = findViewById(R.id.send)
     msgList = findViewById(R.id.room_talk)
     inviteView = findViewById(R.id.invite)
+    audience.setOnClickListener(new OnClickListener {
+
+
+
+      override def onClick(view: View): Unit = {
+        showAudienceList()
+      }
+    })
     sendView.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
         val str = msgEdit.getText.toString.trim
@@ -188,6 +201,26 @@ class RoomActivity extends BaseActivity {
     super.onBackPressed()
     Log.d("RoomActivityLogger", "back pressed!,quit room")
     NetWorkService.leave()
+  }
+
+
+  def showAudienceList(): Unit = {
+    val audiences = LocalService.currentRoom.watchers
+
+    val dialog = new Dialog(this, R.style.dialog)
+    val layout = LayoutInflater.from(this).inflate(R.layout.dialog_audience, null)
+    val list:ListView = layout.findViewById(R.id.audience_list)
+    val close:View = layout.findViewById(R.id.audience_close)
+    close.setOnClickListener(new OnClickListener {
+      override def onClick(view: View): Unit = {
+        dialog.dismiss()
+      }
+    })
+    val adapter = new AudienceAdapter(audiences,this)
+    list.setAdapter(adapter)
+    dialog.setCancelable(true)
+    dialog.setContentView(layout)
+    dialog.show()
   }
 }
 

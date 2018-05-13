@@ -60,20 +60,30 @@ class GameActivity extends BaseActivity {
     surrenderView = findViewById(R.id.surrender)
     sendView = findViewById(R.id.send)
     msgContentEdit = findViewById(R.id.msg_content)
-    testView.setOnClickListener(new OnClickListener {
-      override def onClick(view: View): Unit = {
-        val r = new Random()
-        showAnalyseDialog(r.nextBoolean())
-      }
-    })
-    surrenderView.setOnClickListener(new OnClickListener {
-      override def onClick(view: View): Unit = {
-        showConfirmCancelDialog(Seq("你要投降吗?", "确认", "取消"), {
-          NetWorkService.surrender()
-          finish()
-        }, {})
-      }
-    })
+    if(iswatch){
+      surrenderView.setOnClickListener(new OnClickListener {
+        override def onClick(view: View): Unit = {
+          showText("你没有权限!")
+        }
+      })
+    }else{
+      surrenderView.setOnClickListener(new OnClickListener {
+        override def onClick(view: View): Unit = {
+          showConfirmCancelDialog(Seq("你要投降吗?", "确认", "取消"), {
+            NetWorkService.surrender()
+            finish()
+          }, {})
+        }
+      })
+      testView.setOnClickListener(new OnClickListener {
+        override def onClick(view: View): Unit = {
+          val r = new Random()
+          showAnalyseDialog(r.nextBoolean())
+        }
+      })
+
+    }
+
 
     sendView.setOnClickListener(new OnClickListener {
       override def onClick(view: View): Unit = {
@@ -89,7 +99,7 @@ class GameActivity extends BaseActivity {
     })
 
 
-    gameMessageAdapter = new GameMessageAdapter(this, messages)
+    gameMessageAdapter = new GameMessageAdapter(this, messages,iswatch)
     gameEventList.setAdapter(gameMessageAdapter)
 
     val cur = LocalService.currentUser
